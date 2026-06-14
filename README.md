@@ -64,10 +64,12 @@ ai-llm-learning/
 
 ## 🔧 技术栈
 
-- **Python 3.14**（AI 标准生态）
+- **Python + uv**（用 [uv](https://docs.astral.sh/uv/) 管理依赖与环境，秒装秒跑）
 - 框架：LangChain / LlamaIndex / HuggingFace Transformers
 - 模型：Ollama 本地模型 / 云端 API
 - 向量库：Chroma / Milvus
+
+> **运行项目**：`uv sync`（装依赖）→ `uv run python 脚本.py`（运行）
 
 ---
 
