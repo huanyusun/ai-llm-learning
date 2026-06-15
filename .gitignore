@@ -42,6 +42,7 @@ models/
 
 # Chroma / 向量库本地存储
 chroma_db/
+.chroma_db/
 *.sqlite3
 
 # 日志
