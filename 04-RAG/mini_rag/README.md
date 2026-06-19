@@ -10,7 +10,8 @@
 | 文件 | 作用 | 是否能直接跑 |
 |---|---|---|
 | `main.py` | **纯 NumPy 自实现版**：加载→分块→哈希词袋嵌入→numpy 余弦检索→拼 prompt→toy 生成 | ✅ `uv run` 直接跑通 |
-| `main_real.py` | **真实版**：同样的六步，换 chromadb + sentence-transformers/ollama 嵌入 + ollama 生成 | 需手动装依赖 + 起 ollama |
+| `main_advanced.py` | **进阶版（Rerank+HyDE，纯 NumPy）**：在基线六步上加 toy cross-encoder 重排 + 规则版 HyDE，演示 before/after | ✅ `uv run` 直接跑通 |
+| `main_real.py` | **真实版**：同样的六步，换 chromadb + sentence-transformers/ollama 嵌入 + ollama 生成；并含真实 rerank(bge-reranker) + HyDE(ollama 生成假设答案) | 需手动装依赖 + 起 ollama |
 | `sample.txt` | 示例知识文档（内容是关于 RAG 本身的常识，方便自验召回） | — |
 
 ---
@@ -43,6 +44,20 @@ uv run 04-RAG/mini_rag/main.py
 依赖只有 `numpy`（已在仓库根 `pyproject.toml` 的 `dependencies` 里），无需任何外部服务。
 运行后会打印：分块结果 → 嵌入入库 → 4 个示范问题的检索命中 + Prompt + 回答。
 其中 "今天晚饭吃什么？" 触发防幻觉回复（知识库里没有）。
+
+### 版本一·进阶：Rerank + HyDE（纯 NumPy，原理版）
+
+```bash
+cd /Users/sunhuanyu/ai-llm-learning
+uv run 04-RAG/mini_rag/main_advanced.py
+```
+
+复用 `main.py` 的基线六步，只加两招进阶检索（对应 `knowledge/RAG` 第8章）：
+- **Rerank**：`rerank()` 用 toy cross-encoder（query/doc 词覆盖联合打分）对双塔召回的 top8 二次精排取 top3 —— 演示「双塔快但粗 → cross-encoder 联合打分更准」的机制。
+- **HyDE**：`hyde_expand()` 把提问句去提问腔、改写成「答案腔」假设文档再去嵌入检索 —— 演示「answer↔answer 比 query↔answer 更近」（实测与目标块相似度 0.364→0.549）。
+
+三个演示分别打印：① Rerank 前/后 top3 变化；② HyDE vs 原始 query 召回差异 + 量化相似度；③ HyDE+Rerank 完整流水线接生成。
+> ⚠ toy 的双塔与 cross-encoder 都基于词重叠，重排幅度有限；**真实语义级** rerank/hyde 见 `main_real.py`。
 
 ### 版本二：真实版（chromadb + ollama）
 
@@ -88,6 +103,6 @@ uv run 04-RAG/mini_rag/main_real.py
 | `NumpyVectorStore` / chroma collection | [第6章 6.2](../../knowledge/RAG/基础篇/第6章-数据嵌入与索引.md) | SimpleVectorStore、Chroma、`hnsw:space=cosine` |
 | `retrieve` | [第7章 7.1](../../knowledge/RAG/基础篇/第7章-检索响应生成与RAG引擎.md) | 检索器、top_k |
 | `build_prompt` + `generate` | [第7章 7.2](../../knowledge/RAG/基础篇/第7章-检索响应生成与RAG引擎.md) | 响应生成器、防幻觉 prompt |
-| Rerank / HyDE（笔记里讲） | [第8章 8.1/8.2](../../knowledge/RAG/高级篇/第8章-RAG引擎高级开发.md) | 查询转换、节点后处理器 |
+| Rerank / HyDE（✅ 已实现） | [第8章 8.1/8.2](../../knowledge/RAG/高级篇/第8章-RAG引擎高级开发.md) | cross-encoder 重排、假设文档嵌入；见 `main_advanced.py`（原理）/ `main_real.py`（真实） |
 
 全流程总结、优化点、面试要点见上一级目录 [`../笔记.md`](../笔记.md)。
