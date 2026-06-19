@@ -12,6 +12,7 @@
 | `main.py` | **纯 NumPy 自实现版**：加载→分块→哈希词袋嵌入→numpy 余弦检索→拼 prompt→toy 生成 | ✅ `uv run` 直接跑通 |
 | `main_advanced.py` | **进阶版（Rerank+HyDE，纯 NumPy）**：在基线六步上加 toy cross-encoder 重排 + 规则版 HyDE，演示 before/after | ✅ `uv run` 直接跑通 |
 | `main_real.py` | **真实版**：同样的六步，换 chromadb + sentence-transformers/ollama 嵌入 + ollama 生成；并含真实 rerank(bge-reranker) + HyDE(ollama 生成假设答案) | 需手动装依赖 + 起 ollama |
+| `eval_rag.py` | **评估器（从零）**：faithfulness/relevancy/context_relevance 三个指标，给上面 RAG 打分 + 幻觉对照 | ✅ `uv run` 直接跑通 |
 | `sample.txt` | 示例知识文档（内容是关于 RAG 本身的常识，方便自验召回） | — |
 
 ---
